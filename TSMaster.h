@@ -1,22 +1,20 @@
-#ifndef TSMASTER_NO_AUTO_PROPERTIES
-#define TSMASTER_NO_AUTO_PROPERTIES
-#endif
-
 #ifdef TSMASTER_NO_AUTO_PROPERTIES
-// Альтернативная реализация для GCC
 #define PROPERTY(t, n) \
-    private: t m_##n; \
-    public: t get_##n() const { return m_##n; } \
-    public: void set_##n(t value) { m_##n = value; }
+    private: \
+        t m_##n; \
+    public: \
+        t get_##n() const { return m_##n; } \
+        void set_##n(const t& value) { m_##n = value; }
 
 #define ARRAY_PROPERTY(t, n, s) \
-    private: t m_##n[s]; \
-    public: t* get_##n() { return m_##n; } \
-    public: const t* get_##n() const { return m_##n; }
+    private: \
+        t m_##n[s]; \
+    public: \
+        t get_##n(int index) const { return m_##n[index]; } \
+        void set_##n(int index, const t& value) { m_##n[index] = value; }
 #else
-// Оригинальная реализация для MSVC
-#define PROPERTY(t,n) __declspec(property(...)) // оригинальный макрос
-#define ARRAY_PROPERTY(t,n,s) __declspec(property(...)) // оригинальный макрос
+#define PROPERTY(t, n)  __declspec(property(...)) // Устаревший синтаксис для MSVC
+#define ARRAY_PROPERTY(t, n, s) __declspec(property(...))
 #endif
 #ifndef _TSMaster_H
 #define _TSMaster_H
