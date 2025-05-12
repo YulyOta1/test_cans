@@ -1,3 +1,4 @@
+#include <cstring>
 #ifdef TSMASTER_NO_AUTO_PROPERTIES
 #define PROPERTY(t, n) \
     private: \
