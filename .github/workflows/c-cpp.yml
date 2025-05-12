@@ -1,4 +1,4 @@
-name: C/C++ CI
+name: Windows Build with GCC
 
 on:
   push:
@@ -8,20 +8,21 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest  # Windows Server 2022
 
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Install dependencies
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install MinGW (GCC for Windows)
       run: |
-        sudo apt-get update
-        sudo apt-get install -y g++ make
-        
-    - name: Compile
+        choco install mingw -y --no-progress
+        echo "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+    - name: Compile with GCC
       run: |
-        g++ -o cgw_load CGW_Load_routine_table.cpp
-        
-    - name: Run tests
+        g++ -o CGW_Load.exe CGW_Load_routine_table.cpp
+
+    - name: Run the executable
       run: |
-        ./cgw_load
+        .\CGW_Load.exe
