@@ -1,29 +1,37 @@
-#include <cstring>
-#ifdef TSMASTER_NO_AUTO_PROPERTIES
-#define PROPERTY(t, n) \
-    private: \
-        t m_##n; \
-    public: \
-        t get_##n() const { return m_##n; } \
-        void set_##n(const t& value) { m_##n = value; }
-
-#define ARRAY_PROPERTY(t, n, s) \
-    private: \
-        t m_##n[s]; \
-    public: \
-        t get_##n(int index) const { return m_##n[index]; } \
-        void set_##n(int index, const t& value) { m_##n[index] = value; }
-#else
-#define PROPERTY(t, n)  __declspec(property(...)) // Устаревший синтаксис для MSVC
-#define ARRAY_PROPERTY(t, n, s) __declspec(property(...))
-#endif
 #ifndef _TSMaster_H
 #define _TSMaster_H
 
+#include <cstring>  // Для std::memcpy
 #include <math.h>
 #include <stdio.h>
+
 #ifndef __cplusplus
 #include <stdbool.h>
+#endif
+#ifdef TSMASTER_NO_AUTO_PROPERTIES
+// GCC-совместимые макросы
+#define PROPERTY(type, name) \
+    private: \
+        type m_##name; \
+    public: \
+        type get_##name() const { return m_##name; } \
+        void set_##name(const type& value) { m_##name = value; }
+
+#define ARRAY_PROPERTY(type, name, size) \
+    private: \
+        type m_##name[size]; \
+    public: \
+        type get_##name(int index) const { return m_##name[index]; } \
+        void set_##name(int index, const type& value) { m_##name[index] = value; }
+
+#else
+// Оригинальные MSVC-макросы
+#define PROPERTY(t, n)  __declspec(property(put = property__set_##n, get = property__get_##n)) t n;\
+    typedef t property__tmp_type_##n
+#define READONLY_PROPERTY(t, n) __declspec(property(get = property__get_##n)) t n;\
+    typedef t property__tmp_type_##n
+#define ARRAY_PROPERTY(t, n, s) __declspec(property(put = property__set_##n, get = property__get_##n)) t n[s];\
+    typedef t property__tmp_type_##n
 #endif
 
 #define CH1 0
