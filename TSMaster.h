@@ -4,14 +4,25 @@
 #include <cstring>
 #include <math.h>
 #include <stdio.h>
+#include <string.h>  // For memcpy in GCC
 
 #ifndef __cplusplus
 #include <stdbool.h>
 #endif
 
-// ===================== КОНФИГУРАЦИЯ МАКРОСОВ =====================
+// ===================== Macro Configuration =====================
+#ifdef _MSC_VER
+    // Microsoft Visual C++ specific definitions
+    #define TSAPI(ret) __declspec(dllexport) ret __stdcall
+#else
+    // GCC/g++ compatible definitions
+    #define TSAPI(ret) __attribute__((stdcall)) ret
+    #define __stdcall __attribute__((stdcall))
+    #define __declspec(x)
+#endif
+
 #ifdef TSMASTER_NO_AUTO_PROPERTIES
-    // Режим GCC: getter/setter
+    // GCC/g++ mode: use getter/setter methods
     #define PROPERTY(type, name) \
         private: \
             type m_##name; \
@@ -25,17 +36,8 @@
         public: \
             type get_##name(int index) const { return m_##name[index]; } \
             void set_##name(int index, const type& value) { m_##name[index] = value; }
-
-    // Удаляем __declspec(property) для GCC
-    #undef READONLY_PROPERTY
-    #undef WRITEONLY_PROPERTY
-    #undef GET
-    #undef SET
-    #undef ARRAY_GET
-    #undef ARRAY_SET
-
 #else
-    // Режим MSVC - оригинальные макросы
+    // MSVC mode - original property macros
     #define PROPERTY(t,n)  __declspec(property(put=property__set_##n, get=property__get_##n)) t n;\
         typedef t property__tmp_type_##n
     
@@ -48,27 +50,27 @@
     #define ARRAY_PROPERTY(t,n,s) __declspec(property(put=property__set_##n, get=property__get_##n)) t n[s];\
         typedef t property__tmp_type_##n
     
-    #define GET(n) virtual property__tmp_type_##n property__get_##n() 
+    #define GET(n) virtual property__tmp_type_##n property__get_##n()
     #define SET(n) virtual void property__set_##n(const property__tmp_type_##n& value)
     #define ARRAY_GET(n) virtual property__tmp_type_##n property__get_##n(int index)
     #define ARRAY_SET(n) virtual void property__set_##n(int index, const property__tmp_type_##n& value)
 #endif
-typedef enum { lvlError = 1, lvlWarning = 2, lvlOK = 3 } TLogLevel;
 
-typedef unsigned __int8  u8;
-typedef signed __int8    s8;
-typedef unsigned __int16 u16;
-typedef signed __int16   s16;
-typedef unsigned __int32 u32;
-typedef signed __int32   s32;
-typedef unsigned __int64 u64;
-typedef signed __int64   s64;
-typedef float            single;
-typedef double           Double;
+// Basic type definitions
+typedef unsigned char u8;
+typedef signed char s8;
+typedef unsigned short u16;
+typedef signed short s16;
+typedef unsigned int u32;
+typedef signed int s32;
+typedef unsigned long long u64;
+typedef signed long long s64;
+typedef float single;
+typedef double Double;
 
-// Указатели
-typedef u8*  pu8;
-typedef s8*  ps8;
+// Pointer definitions
+typedef u8* pu8;
+typedef s8* ps8;
 typedef u16* pu16;
 typedef s16* ps16;
 typedef u32* pu32;
@@ -76,36 +78,187 @@ typedef s32* ps32;
 typedef u64* pu64;
 typedef s64* ps64;
 
-// ===================== СТРУКТУРЫ =====================
-#pragma pack(push)
-#pragma pack(1)
+// ===================== Structures =====================
+#pragma pack(push, 1)
 
-// CAN Сообщение (пример для GCC)
+// CAN Message structure
 typedef struct _TLIBCAN {
     u8 FIdxChn;
     u8 FProperties;
+    u8 FDLC;
+    u8 FReserved;
+    s32 FIdentifier;
+    s64 FTimeUs;
+    u8 FData[8];
 
 #ifdef __cplusplus
     PROPERTY(bool, is_tx);
+    PROPERTY(bool, is_data);
+    PROPERTY(bool, is_std);
+    PROPERTY(bool, is_err);
 
+    // Implementation for GCC
     #ifdef TSMASTER_NO_AUTO_PROPERTIES
-        bool get_is_tx() const {
-            return (FProperties & 0x01) != 0;
+        bool get_is_tx() const { return (FProperties & 0x01) != 0; }
+        void set_is_tx(bool value) { 
+            FProperties = value ? (FProperties | 0x01) : (FProperties & ~0x01); 
         }
-        void set_is_tx(bool value) {
-            FProperties = value ? (FProperties | 0x01) : (FProperties & ~0x01);
+
+        bool get_is_data() const { return (FProperties & 0x02) == 0; }
+        void set_is_data(bool value) { 
+            FProperties = value ? (FProperties & ~0x02) : (FProperties | 0x02);
         }
-    #else
-        GET(is_tx) { 
-            return (FProperties & 0x01) != 0;
+
+        bool get_is_std() const { return (FProperties & 0x04) == 0; }
+        void set_is_std(bool value) { 
+            FProperties = value ? (FProperties & ~0x04) : (FProperties | 0x04);
         }
-        SET(is_tx) {
-            if (value) FProperties |= 0x01; 
-            else FProperties &= ~0x01;
+
+        bool get_is_err() const { return (FProperties & 0x80) != 0; }
+        void set_is_err(bool value) { 
+            FProperties = value ? (FProperties | 0x80) : (FProperties & ~0x80);
         }
     #endif
+
+    void load_data_array(u8* a) {
+        memcpy(FData, a, 8);
+    }
+
+    void set_data(u8 d0, u8 d1, u8 d2, u8 d3, u8 d4, u8 d5, u8 d6, u8 d7) {
+        FData[0] = d0; FData[1] = d1; FData[2] = d2; FData[3] = d3;
+        FData[4] = d4; FData[5] = d5; FData[6] = d6; FData[7] = d7;
+    }
+
+    void init_w_std_id(s32 AId, s32 ADLC) {
+        FIdxChn = 0;
+        FIdentifier = AId;
+        FDLC = ADLC;
+        FReserved = 0;
+        FProperties = 0;
+        set_is_tx(false);
+        set_is_std(true);
+        set_is_data(true);
+        memset(FData, 0, sizeof(FData));
+        FTimeUs = 0;
+    }
+
+    void init_w_ext_id(s32 AId, s32 ADLC) {
+        FIdxChn = 0;
+        FIdentifier = AId;
+        FDLC = ADLC;
+        FReserved = 0;
+        FProperties = 0;
+        set_is_tx(false);
+        set_is_std(false);
+        set_is_data(true);
+        memset(FData, 0, sizeof(FData));
+        FTimeUs = 0;
+    }
 #endif
 } TLIBCAN;
+
+// CAN FD Message structure
+typedef struct _TLIBCANFD {
+    u8 FIdxChn;
+    u8 FProperties;
+    u8 FDLC;
+    u8 FFDProperties;
+    s32 FIdentifier;
+    s64 FTimeUs;
+    u8 FData[64];
+
+#ifdef __cplusplus
+    PROPERTY(bool, is_tx);
+    PROPERTY(bool, is_data);
+    PROPERTY(bool, is_std);
+    PROPERTY(bool, is_err);
+    PROPERTY(bool, is_edl);
+    PROPERTY(bool, is_brs);
+    PROPERTY(bool, is_esi);
+
+    // Implementation for GCC
+    #ifdef TSMASTER_NO_AUTO_PROPERTIES
+        bool get_is_tx() const { return (FProperties & 0x01) != 0; }
+        void set_is_tx(bool value) { 
+            FProperties = value ? (FProperties | 0x01) : (FProperties & ~0x01); 
+        }
+
+        bool get_is_data() const { return (FProperties & 0x02) == 0; }
+        void set_is_data(bool value) { 
+            FProperties = value ? (FProperties & ~0x02) : (FProperties | 0x02);
+        }
+
+        bool get_is_std() const { return (FProperties & 0x04) == 0; }
+        void set_is_std(bool value) { 
+            FProperties = value ? (FProperties & ~0x04) : (FProperties | 0x04);
+        }
+
+        bool get_is_err() const { return (FProperties & 0x80) != 0; }
+        void set_is_err(bool value) { 
+            FProperties = value ? (FProperties | 0x80) : (FProperties & ~0x80);
+        }
+
+        bool get_is_edl() const { return (FFDProperties & 0x01) != 0; }
+        void set_is_edl(bool value) { 
+            FFDProperties = value ? (FFDProperties | 0x01) : (FFDProperties & ~0x01);
+        }
+
+        bool get_is_brs() const { return (FFDProperties & 0x02) != 0; }
+        void set_is_brs(bool value) { 
+            FFDProperties = value ? (FFDProperties | 0x02) : (FFDProperties & ~0x02);
+        }
+
+        bool get_is_esi() const { return (FFDProperties & 0x04) != 0; }
+        void set_is_esi(bool value) { 
+            FFDProperties = value ? (FFDProperties | 0x04) : (FFDProperties & ~0x04);
+        }
+    #endif
+
+    void load_data(u8* a) {
+        memcpy(FData, a, 64);
+    }
+
+    void init_w_std_id(s32 AId, s32 ADLC) {
+        FIdxChn = 0;
+        FIdentifier = AId;
+        FDLC = ADLC;
+        FProperties = 0;
+        FFDProperties = 0x01; // EDL enabled
+        set_is_tx(false);
+        set_is_std(true);
+        set_is_data(true);
+        memset(FData, 0, sizeof(FData));
+        FTimeUs = 0;
+    }
+
+    void init_w_ext_id(s32 AId, s32 ADLC) {
+        FIdxChn = 0;
+        FIdentifier = AId;
+        FDLC = ADLC;
+        FFDProperties = 0x01; // EDL enabled
+        FProperties = 0;
+        set_is_tx(false);
+        set_is_std(false);
+        set_is_data(true);
+        memset(FData, 0, sizeof(FData));
+        FTimeUs = 0;
+    }
+
+    s32 get_data_length() const {
+        const u8 DLC_DATA_BYTE_CNT[16] = {
+            0, 1, 2, 3, 4, 5, 6, 7,
+            8, 12, 16, 20, 24, 32, 48, 64
+        };
+        s32 l = FDLC < 15 ? FDLC : 15;
+        l = l > 0 ? l : 0;
+        return DLC_DATA_BYTE_CNT[l];
+    }
+
+    TLIBCAN to_tcan() const {
+        return *(TLIBCAN*)this;
+    }
+#endif
+} TLIBCANFD;
 
 // CAN FD Сообщение
 typedef struct _TLIBCANFD {
