@@ -259,7 +259,7 @@ typedef struct _TLIBCAN
         FTimeUs = 0;
     }
 #endif
-}TLIBCAN, *PLIBCAN;
+}TLIBCAN, * PLIBCAN;
 
 typedef struct _TLIBCANFD
 {

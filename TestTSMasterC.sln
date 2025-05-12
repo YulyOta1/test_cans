@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29519.181
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35506.116 d17.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestTSMasterC", "TestTSMasterC.vcxproj", "{7F35648F-B31C-432C-81F4-354A5FD6DB24}"
 EndProject
@@ -11,6 +11,8 @@ Global
 		Debug|x86 = Debug|x86
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
+		test|x64 = test|x64
+		test|x86 = test|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{7F35648F-B31C-432C-81F4-354A5FD6DB24}.Debug|x64.ActiveCfg = Debug|x64
@@ -21,6 +23,10 @@ Global
 		{7F35648F-B31C-432C-81F4-354A5FD6DB24}.Release|x64.Build.0 = Release|x64
 		{7F35648F-B31C-432C-81F4-354A5FD6DB24}.Release|x86.ActiveCfg = Release|Win32
 		{7F35648F-B31C-432C-81F4-354A5FD6DB24}.Release|x86.Build.0 = Release|Win32
+		{7F35648F-B31C-432C-81F4-354A5FD6DB24}.test|x64.ActiveCfg = Release|x64
+		{7F35648F-B31C-432C-81F4-354A5FD6DB24}.test|x64.Build.0 = Release|x64
+		{7F35648F-B31C-432C-81F4-354A5FD6DB24}.test|x86.ActiveCfg = test|Win32
+		{7F35648F-B31C-432C-81F4-354A5FD6DB24}.test|x86.Build.0 = test|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -30,7 +30,7 @@ typedef DWORD TXcpSkExtFncRet;        // return code
 //*****************************************************************************
 //                               prototypes
 //*****************************************************************************
-KEYGEN_API GenerateKeyEx(
+KEYGEN_API GenerateKeyEx_EXT(
 	const unsigned char* ipSeedArray,          /* Array for the seed [in] */
 	unsigned int iSeedArraySize,               /* Length of the array for the seed [in] */
 	const unsigned int iSecurityLevel,         /* Security level [in] */
@@ -38,5 +38,20 @@ KEYGEN_API GenerateKeyEx(
 	unsigned char* iopKeyArray,                /* Array for the key [in, out] */
 	unsigned int iMaxKeyArraySize,             /* Maximum length of the array for the key [in] */
 	unsigned int& oActualKeyArraySize);        /* Length of the key [out] */
-
+KEYGEN_API GenerateKeyEx_EOL(
+	const unsigned char* ipSeedArray,          /* Array for the seed [in] */
+	unsigned int iSeedArraySize,               /* Length of the array for the seed [in] */
+	const unsigned int iSecurityLevel,         /* Security level [in] */
+	const char* ipVariant,                     /* Name of the active variant [in] */
+	unsigned char* iopKeyArray,                /* Array for the key [in, out] */
+	unsigned int iMaxKeyArraySize,             /* Maximum length of the array for the key [in] */
+	unsigned int& oActualKeyArraySize);        /* Length of the key [out] */
+KEYGEN_API GenerateKeyEx_PROG(
+	const unsigned char* ipSeedArray,          /* Array for the seed [in] */
+	unsigned int iSeedArraySize,               /* Length of the array for the seed [in] */
+	const unsigned int iSecurityLevel,         /* Security level [in] */
+	const char* ipVariant,                     /* Name of the active variant [in] */
+	unsigned char* iopKeyArray,                /* Array for the key [in, out] */
+	unsigned int iMaxKeyArraySize,             /* Maximum length of the array for the key [in] */
+	unsigned int& oActualKeyArraySize);        /* Length of the key [out] */
 #endif

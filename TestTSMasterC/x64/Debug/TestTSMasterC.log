@@ -1,1 +1,3 @@
-﻿  TestTSMasterC.vcxproj -> C:\Users\r.ota\Source\Repos\TSMasterAPI64\x64\Debug\TestTSMasterC.exe
+﻿  CGW_Load_routine_table.cpp
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\filesystem(12): warning STL4038: The contents of <filesystem> are available only with C++17 or later.
+C:\Users\y.ota\Desktop\func_testing\TSMasterAPI64_itelma\CGW_cfg.h(993): warning C26495: Переменная "cgw_uds::responseArray" не инициализирована. Всегда инициализируйте переменную-член (type.6).
