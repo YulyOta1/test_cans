@@ -1016,7 +1016,7 @@ struct seed_key_cfg {
     int key_level_ext = 0x04;
     int seed_level_eol = 0x05;
     int key_level_eol = 0x06;
-    char key_variant = NULL;
+    char key_variant = '\0';
     char* key_variant_pointer = &key_variant;//!TODO p = NULL?????
     unsigned char key_array[64] = { 0 };
     unsigned char* key_array_pointer = &key_array[0];
