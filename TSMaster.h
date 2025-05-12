@@ -1,3 +1,23 @@
+#ifndef TSMASTER_NO_AUTO_PROPERTIES
+#define TSMASTER_NO_AUTO_PROPERTIES
+#endif
+
+#ifdef TSMASTER_NO_AUTO_PROPERTIES
+// ĞĞ»ÑŒÑ‚ĞµÑ€Ğ½Ğ°Ñ‚Ğ¸Ğ²Ğ½Ğ°Ñ Ñ€ĞµĞ°Ğ»Ğ¸Ğ·Ğ°Ñ†Ğ¸Ñ Ğ´Ğ»Ñ GCC
+#define PROPERTY(t, n) \
+    private: t m_##n; \
+    public: t get_##n() const { return m_##n; } \
+    public: void set_##n(t value) { m_##n = value; }
+
+#define ARRAY_PROPERTY(t, n, s) \
+    private: t m_##n[s]; \
+    public: t* get_##n() { return m_##n; } \
+    public: const t* get_##n() const { return m_##n; }
+#else
+// ĞÑ€Ğ¸Ğ³Ğ¸Ğ½Ğ°Ğ»ÑŒĞ½Ğ°Ñ Ñ€ĞµĞ°Ğ»Ğ¸Ğ·Ğ°Ñ†Ğ¸Ñ Ğ´Ğ»Ñ MSVC
+#define PROPERTY(t,n) __declspec(property(...)) // Ğ¾Ñ€Ğ¸Ğ³Ğ¸Ğ½Ğ°Ğ»ÑŒĞ½Ñ‹Ğ¹ Ğ¼Ğ°ĞºÑ€Ğ¾Ñ
+#define ARRAY_PROPERTY(t,n,s) __declspec(property(...)) // Ğ¾Ñ€Ğ¸Ğ³Ğ¸Ğ½Ğ°Ğ»ÑŒĞ½Ñ‹Ğ¹ Ğ¼Ğ°ĞºÑ€Ğ¾Ñ
+#endif
 #ifndef _TSMaster_H
 #define _TSMaster_H
 
@@ -916,7 +936,7 @@ typedef struct _TLIBFlexray_controller_config
     u8 channelBSymbolTransmitted;//Enable Symble Transmit function of Channel B: 0: Disable 1: Enable
     u8 ALLOW_HALT_DUE_TO_CLOCK;
     u8 single_SLOT_ENABLED;//FALSE_0, TRUE_1
-    u8 wake_up_idx;//Wake up channe: 0:ChannelA£¬ 1:ChannelB
+    u8 wake_up_idx;//Wake up channe: 0:ChannelAï¼Œ 1:ChannelB
     u8 ALLOW_PASSIVE_TO_ACTIVE;
     u8 COLD_START_ATTEMPTS;
     u8 synchFrameTransmitted;//Need to transmit sync frame
@@ -956,7 +976,7 @@ typedef struct _TLIBFlexray_controller_config
     u8 EXTERN_OFFSET_CORRECTION;
     u8 EXTERN_RATE_CORRECTION;
     u8 REVERS4;//Memory Align
-    u8 config_byte;//Memory Align //bit0: 1£ºÆôÓÃchaÉÏÖÕ¶Ëµç×è  0£º²»ÆôÓÃ //bit1: 1£ºÆôÓÃchbÉÏÖÕ¶Ëµç×è  0£º²»ÆôÓÃ //bit2: 1£ºÆôÓÃ½ÓÊÕFIFO    0£º²»ÆôÓÃ //bit4: 1£ºchaÇÅ½ÓÊ¹ÄÜ             0£º²»Ê¹ÄÜ //bit5: 1£ºchbÇÅ½ÓÊ¹ÄÜ             0£º²»Ê¹ÄÜ
+    u8 config_byte;//Memory Align //bit0: 1ï¼šå¯ç”¨chaä¸Šç»ˆç«¯ç”µé˜»  0ï¼šä¸å¯ç”¨ //bit1: 1ï¼šå¯ç”¨chbä¸Šç»ˆç«¯ç”µé˜»  0ï¼šä¸å¯ç”¨ //bit2: 1ï¼šå¯ç”¨æ¥æ”¶FIFO    0ï¼šä¸å¯ç”¨ //bit4: 1ï¼šchaæ¡¥æ¥ä½¿èƒ½             0ï¼šä¸ä½¿èƒ½ //bit5: 1ï¼šchbæ¡¥æ¥ä½¿èƒ½             0ï¼šä¸ä½¿èƒ½
 }TLIBFlexray_controller_config, *PLIBFlexray_controller_config;
 
 typedef enum {
