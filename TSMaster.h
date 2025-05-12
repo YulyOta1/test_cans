@@ -26,13 +26,14 @@
             type get_##name(int index) const { return m_##name[index]; } \
             void set_##name(int index, const type& value) { m_##name[index] = value; }
 
-    // Удаляем MSVC+ SPECIFIC MACROS
+    // Удаляем MSVC-специфичные макросы
     #undef READONLY_PROPERTY
     #undef WRITEONLY_PROPERTY
     #undef GET
     #undef SET
     #undef ARRAY_GET
     #undef ARRAY_SET
+
 #else
     // Режим MSVC - оригинальные макросы
     #define PROPERTY(t,n)  __declspec(property(put=property__set_##n, get=property__get_##n)) t n;\
@@ -52,7 +53,6 @@
     #define ARRAY_GET(n) property__tmp_type_##n property__get_##n(int index)
     #define ARRAY_SET(n) void property__set_##n(int index, const property__tmp_type_##n& value)
 #endif
-
 #define CH1 0
 #define CH2 1
 #define CH3 2
