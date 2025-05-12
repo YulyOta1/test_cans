@@ -11,7 +11,7 @@
 
 // ===================== КОНФИГУРАЦИЯ МАКРОСОВ =====================
 #ifdef TSMASTER_NO_AUTO_PROPERTIES
-    // Режим GCC - свойства через getter/setter
+    // Режим GCC: getter/setter
     #define PROPERTY(type, name) \
         private: \
             type m_##name; \
@@ -26,7 +26,7 @@
             type get_##name(int index) const { return m_##name[index]; } \
             void set_##name(int index, const type& value) { m_##name[index] = value; }
 
-    // Удаляем MSVC-специфичные макросы
+    // Удаляем __declspec(property) для GCC
     #undef READONLY_PROPERTY
     #undef WRITEONLY_PROPERTY
     #undef GET
@@ -48,10 +48,84 @@
     #define ARRAY_PROPERTY(t,n,s) __declspec(property(put=property__set_##n, get=property__get_##n)) t n[s];\
         typedef t property__tmp_type_##n
     
-    #define GET(n) property__tmp_type_##n property__get_##n()
-    #define SET(n) void property__set_##n(const property__tmp_type_##n& value)
-    #define ARRAY_GET(n) property__tmp_type_##n property__get_##n(int index)
-    #define ARRAY_SET(n) void property__set_##n(int index, const property__tmp_type_##n& value)
+    #define GET(n) virtual property__tmp_type_##n property__get_##n() 
+    #define SET(n) virtual void property__set_##n(const property__tmp_type_##n& value)
+    #define ARRAY_GET(n) virtual property__tmp_type_##n property__get_##n(int index)
+    #define ARRAY_SET(n) virtual void property__set_##n(int index, const property__tmp_type_##n& value)
+#endif
+typedef enum { lvlError = 1, lvlWarning = 2, lvlOK = 3 } TLogLevel;
+
+typedef unsigned __int8  u8;
+typedef signed __int8    s8;
+typedef unsigned __int16 u16;
+typedef signed __int16   s16;
+typedef unsigned __int32 u32;
+typedef signed __int32   s32;
+typedef unsigned __int64 u64;
+typedef signed __int64   s64;
+typedef float            single;
+typedef double           Double;
+
+// Указатели
+typedef u8*  pu8;
+typedef s8*  ps8;
+typedef u16* pu16;
+typedef s16* ps16;
+typedef u32* pu32;
+typedef s32* ps32;
+typedef u64* pu64;
+typedef s64* ps64;
+
+// ===================== СТРУКТУРЫ =====================
+#pragma pack(push)
+#pragma pack(1)
+
+// CAN Сообщение (пример для GCC)
+typedef struct _TLIBCAN {
+    u8 FIdxChn;
+    u8 FProperties;
+
+#ifdef __cplusplus
+    PROPERTY(bool, is_tx);
+
+    #ifdef TSMASTER_NO_AUTO_PROPERTIES
+        bool get_is_tx() const {
+            return (FProperties & 0x01) != 0;
+        }
+        void set_is_tx(bool value) {
+            FProperties = value ? (FProperties | 0x01) : (FProperties & ~0x01);
+        }
+    #else
+        GET(is_tx) { 
+            return (FProperties & 0x01) != 0;
+        }
+        SET(is_tx) {
+            if (value) FProperties |= 0x01; 
+            else FProperties &= ~0x01;
+        }
+    #endif
+#endif
+} TLIBCAN;
+
+// CAN FD Сообщение
+typedef struct _TLIBCANFD {
+    u8 FIdxChn;
+    u8 FProperties;
+
+#ifdef __cplusplus
+    PROPERTY(bool, is_edl);
+
+    #ifdef TSMASTER_NO_AUTO_PROPERTIES
+        bool get_is_edl() const {
+            return (FProperties & 0x80) != 0;
+        }
+        void set_is_edl(bool value) {
+            FProperties = value ? (FProperties | 0x80) : (FProperties & ~0x80);
+        }
+    #else
+        GET(is_edl) { /*...*/ }
+        SET(is_edl) { /*...*/ }
+    #endif
 #endif
 #define CH1 0
 #define CH2 1
