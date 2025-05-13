@@ -18,4 +18,4 @@ jobs:
         
     - name: Compile
       run: |
-        g++ -o CGW_Load.exe CGW_Load_routine_table.cpp -std=c++11 \ -DTSMASTER_NO_AUTO_PROPERTIES \ -DTSMASTER_NO_DIRECT_MACROS \ -D__stdcall= \ -D'__declspec(x)'= \ -Wno-macro-redefined
+        g++ -o CGW_Load.exe CGW_Load_routine_table.cpp -std=c++11
