@@ -10,7 +10,6 @@
 #include <stdio.h>
 #include <filesystem>
 #include <windows.h>
-#include "TSMaster.h"
 #include "seedNKeyDiag.h"
 #include "CGW_cfg.h"
 #include <unordered_map>
