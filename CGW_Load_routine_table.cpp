@@ -17,6 +17,7 @@
 #include <unordered_set>  // Для unordered_set
 #include <chrono>
 #include <thread>
+#include <TSMaster_modified.h>
 using namespace std;
 struct ChannelData {
 	int channel;
